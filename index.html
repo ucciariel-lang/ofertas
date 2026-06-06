@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ofertas de la Semana</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #0f0f0f;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .header {
+    text-align: center;
+    padding: 36px 20px 16px;
+  }
+  .header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.2rem, 8vw, 3.8rem);
+    letter-spacing: 0.06em;
+    background: linear-gradient(90deg, #fff 0%, #ccc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+  .header p {
+    color: #888;
+    font-size: 0.85rem;
+    margin-top: 6px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .aviso {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    margin: 0 14px 16px;
+    max-width: 672px;
+    margin-left: auto; margin-right: auto;
+    padding: 14px 16px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .aviso-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 2px; }
+  .aviso-es { color: #ccc; font-size: 0.8rem; line-height: 1.5; margin-bottom: 6px; font-weight: 600; }
+  .aviso-zh { color: #aaa; font-size: 0.8rem; line-height: 1.6; }
+  .aviso-divider { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 6px 0; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding: 0 14px 20px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .card {
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.45);
+    aspect-ratio: 1 / 1.05;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.4s forwards;
+  }
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.12s; }
+  .card:nth-child(3) { animation-delay: 0.19s; }
+  .card:nth-child(4) { animation-delay: 0.26s; }
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+  .card:active { transform: scale(0.96); }
+
+  .card-bg { position: absolute; inset: 0; z-index: 0; }
+  .card-overlay { position: absolute; inset: 0; z-index: 1; }
+  .card-body { position: relative; z-index: 2; width: 100%; padding: 14px 14px 16px; text-align: center; }
+  .card-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.1rem, 4.5vw, 1.6rem);
+    letter-spacing: 0.04em;
+    line-height: 1.1;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+  .card-tag {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 0.7rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 99px;
+    color: #fff;
+  }
+  .card-icon {
+    position: absolute;
+    top: 14px; right: 14px;
+    z-index: 3;
+    font-size: 1.4rem;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    top: -30px; left: -30px;
+    background: rgba(255,255,255,0.08);
+    z-index: 1;
+  }
+  .card::after {
+    content: '';
+    position: absolute;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    bottom: 50px; right: -20px;
+    background: rgba(255,255,255,0.06);
+    z-index: 1;
+  }
+
+  .card-fiorela .card-bg { background: linear-gradient(160deg, #7b2ff7 0%, #b06aff 50%, #e0c3fc 100%); }
+  .card-fiorela .card-overlay { background: linear-gradient(to top, rgba(80,0,180,0.85) 0%, transparent 55%); }
+  .card-fiorela .card-tag { background: rgba(255,255,255,0.22); }
+
+  .card-superof .card-bg { background: linear-gradient(160deg, #1a8a00 0%, #5dc400 50%, #f5c400 100%); }
+  .card-superof .card-overlay { background: linear-gradient(to top, rgba(20,80,0,0.88) 0%, transparent 55%); }
+  .card-superof .card-tag { background: rgba(245,196,0,0.3); }
+
+  .card-duck .card-bg { background: linear-gradient(160deg, #ff3e8a 0%, #ff6e00 55%, #ffd000 100%); }
+  .card-duck .card-overlay { background: linear-gradient(to top, rgba(180,30,80,0.88) 0%, transparent 55%); }
+  .card-duck .card-tag { background: rgba(255,150,0,0.3); }
+
+  .card-russia .card-bg { background: linear-gradient(160deg, #00b4d8 0%, #e05c3a 55%, #c0392b 100%); }
+  .card-russia .card-overlay { background: linear-gradient(to top, rgba(140,20,10,0.88) 0%, transparent 55%); }
+  .card-russia .card-tag { background: rgba(0,150,200,0.3); }
+
+  /* CONTACTO */
+  .contacto {
+    max-width: 672px;
+    margin: 0 auto 36px;
+    padding: 0 14px;
+  }
+  .contacto-titulo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.1em;
+    color: #555;
+    text-align: center;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  .contacto-btns { display: flex; gap: 10px; margin-bottom: 12px; }
+  .btn-contacto {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 10px;
+    border-radius: 14px;
+    text-decoration: none;
+    font-weight: 900;
+    font-size: 0.88rem;
+    transition: transform 0.15s;
+    border: none;
+    cursor: pointer;
+    color: #fff;
+  }
+  .btn-contacto:active { transform: scale(0.96); }
+  .btn-wsp { background: linear-gradient(135deg, #25d366, #128c7e); }
+  .btn-wechat { background: linear-gradient(135deg, #07c160, #1aad19); }
+  .btn-contacto svg { width: 20px; height: 20px; flex-shrink: 0; }
+  .btn-contacto-info { display: flex; flex-direction: column; align-items: flex-start; }
+  .btn-contacto-label { font-size: 0.68rem; opacity: 0.85; font-weight: 600; }
+  .btn-contacto-val { font-size: 0.9rem; font-weight: 900; }
+
+  /* QR WECHAT */
+  .wechat-qr-box {
+    display: none;
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    margin-top: 4px;
+  }
+  .wechat-qr-box.visible { display: block; }
+  .wechat-qr-box img { width: 100%; max-width: 260px; border-radius: 8px; }
+  .wechat-qr-name {
+    font-size: 1rem;
+    font-weight: 900;
+    color: #111;
+    margin-top: 10px;
+  }
+  .wechat-qr-sub {
+    font-size: 0.78rem;
+    color: #666;
+    margin-top: 3px;
+  }
+
+  /* MODAL */
+  .modal-backdrop {
+    display: none;
+    position: fixed; inset: 0;
+    background: #000;
+    z-index: 100;
+    flex-direction: column;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal-topbar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    flex-shrink: 0;
+    background: #111;
+  }
+  .modal-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.06em;
+    color: #fff;
+  }
+  .modal-close {
+    background: rgba(255,255,255,0.12);
+    border: none;
+    color: #fff;
+    font-size: 1.3rem;
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-content { flex: 1; width: 100%; overflow: hidden; }
+  .drive-frame { width: 100%; height: 100%; border: none; display: block; background: #fff; }
+
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid rgba(255,255,255,0.15);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 60px auto;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Ofertas de la Semana</h1>
+  <p>Tocá para ver la lista completa</p>
+</div>
+
+<div class="aviso">
+  <div class="aviso-icon">⚠️</div>
+  <div>
+    <div class="aviso-es">Cada distribuidora es independiente. Los pedidos deben realizarse por separado según la lista que te interese.</div>
+    <hr class="aviso-divider">
+    <div class="aviso-zh">每家经销商都是独立的。请根据您感兴趣的价格表分别下单。如需协调，请联系我。</div>
+  </div>
+</div>
+
+<div class="grid">
+
+  <div class="card card-fiorela" onclick="openModal('fiorela')">
+    <div class="card-bg"></div>
+    <div class="card-overlay"></div>
+    <span class="card-icon">📄</span>
+    <div class="card-body">
+      <div class="card-name">Distribuidora<br>Fiorela</div>
+      <span class="card-tag">Lista completa →</span>
+    </div>
+  </div>
+
+  <div class="card card-superof" onclick="openModal('superof')">
+    <div class="card-bg"></div>
+    <div class="card-overlay"></div>
+    <span class="card-icon">🏷️</span>
+    <div class="card-body">
+      <div class="card-name">Súper<br>Ofertas</div>
+      <span class="card-tag">Ver ofertas →</span>
+    </div>
+  </div>
+
+  <div class="card card-duck" onclick="openModal('duck')">
+    <div class="card-bg"></div>
+    <div class="card-overlay"></div>
+    <span class="card-icon">🦆</span>
+    <div class="card-body">
+      <div class="card-name">Super<br>Duck</div>
+      <span class="card-tag">Ver ofertas →</span>
+    </div>
+  </div>
+
+  <div class="card card-russia" onclick="openModal('russia')">
+    <div class="card-bg"></div>
+    <div class="card-overlay"></div>
+    <span class="card-icon">📋</span>
+    <div class="card-body">
+      <div class="card-name">Russia<br>Distribución</div>
+      <span class="card-tag">Lista completa →</span>
+    </div>
+  </div>
+
+</div>
+
+<div class="contacto">
+  <div class="contacto-titulo">Contacto / 联系方式</div>
+  <div class="contacto-btns">
+    <a class="btn-contacto btn-wsp" href="https://wa.me/5491151817707" target="_blank">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      <div class="btn-contacto-info">
+        <span class="btn-contacto-label">WhatsApp</span>
+        <span class="btn-contacto-val">11 5181-7707</span>
+      </div>
+    </a>
+    <button class="btn-contacto btn-wechat" onclick="toggleQR()">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 01.213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 00.167-.054l1.903-1.114a.864.864 0 01.717-.098 10.16 10.16 0 002.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 01-1.162 1.178A1.17 1.17 0 014.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 01-1.162 1.178 1.17 1.17 0 01-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 01.598.082l1.584.926a.272.272 0 00.14.047c.134 0 .24-.11.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.49.49 0 01.176-.554 6.291 6.291 0 002.5-4.617c0-3.38-3.058-6.022-6.058-6.126zm-2.183 3.109c.535 0 .969.44.969.983a.976.976 0 01-.969.983.976.976 0 01-.969-.983c0-.543.434-.983.969-.983zm4.386 0c.535 0 .969.44.969.983a.976.976 0 01-.969.983.976.976 0 01-.969-.983c0-.543.434-.983.969-.983z"/></svg>
+      <div class="btn-contacto-info">
+        <span class="btn-contacto-label">WeChat · 微信</span>
+        <span class="btn-contacto-val">光头 (批发)</span>
+      </div>
+    </button>
+  </div>
+
+  <!-- QR WeChat -->
+  <div class="wechat-qr-box" id="wechatQR">
+    <img src="https://drive.google.com/thumbnail?id=1OwoC8MwQlE-aJ0KPyhEUlcbS0F_DJPN0&sz=w400" alt="QR WeChat 光头批发">
+    <div class="wechat-qr-name">光头 (批发)</div>
+    <div class="wechat-qr-sub">Escaneá con WeChat · 用微信扫码添加</div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal-topbar">
+    <span class="modal-title" id="modalTitle"></span>
+    <button class="modal-close" onclick="closeModal()">✕</button>
+  </div>
+  <div class="modal-content" id="modalContent"></div>
+</div>
+
+<script>
+const DISTRIBUIDORAS = {
+  fiorela:  { nombre: "Fiorela",            driveId: "1BXW6mzlVzOIEhNpEKgBoy-38L3UEYToj" },
+  superof:  { nombre: "Súper Ofertas",      driveId: "1Xqw2ikPH3zLrDQLgCu4jVaK_wC0KL984" },
+  duck:     { nombre: "Super Duck",         driveId: "15LtlSw9HLzxMu6YtEeuPlXDp4fJHbILa" },
+  russia:   { nombre: "Russia Distribución",driveId: "1-AVoo6R_kLyLszuSQh2wWbpCxT3gwPf-" }
+};
+
+function openModal(key) {
+  const dist = DISTRIBUIDORAS[key];
+  document.getElementById('modalTitle').textContent = dist.nombre;
+  const content = document.getElementById('modalContent');
+  content.innerHTML = '<div class="spinner"></div>';
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => {
+    const url = `https://drive.google.com/embeddedfolderview?id=${dist.driveId}#list`;
+    content.innerHTML = `<iframe class="drive-frame" src="${url}" title="${dist.nombre}"></iframe>`;
+  }, 300);
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('modalContent').innerHTML = '';
+  document.body.style.overflow = '';
+}
+
+function toggleQR() {
+  const qr = document.getElementById('wechatQR');
+  qr.classList.toggle('visible');
+}
+
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+
+</body>
+</html>
